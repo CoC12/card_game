@@ -1,0 +1,19 @@
+services:
+  tcg:
+    build: .
+    ports:
+      - 3000:3000
+    volumes:
+      - ./src:/src
+      - node_modules_volume:/src/node_modules
+    working_dir: /src
+    tty: true
+    environment:
+    - HOST=0.0.0.0
+    - CHOKIDAR_USEPOLLING=true
+    # https://qiita.com/cnloni/items/1c83cac956599fb24158
+    - NODE_OPTIONS=--openssl-legacy-provider
+    command: yarn dev
+
+volumes:
+  node_modules_volume:
