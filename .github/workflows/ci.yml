@@ -44,12 +44,15 @@ jobs:
         run: yarn
 
       - name: Run linter 👀
+        working-directory: ./src
         run: yarn lint
 
       - name: Run tests 🧪
+        working-directory: ./src
         run: yarn test
 
       - name: Generate
+        working-directory: ./src
         run: yarn run generate
 
       - name: Deploy
