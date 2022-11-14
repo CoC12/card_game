@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node: [lts/*]
+        node: [16]
 
     steps:
       - name: Checkout 🛎
@@ -55,8 +55,6 @@ jobs:
 
       - name: Generate
         run: yarn run generate
-        env:
-          NODE_OPTIONS: "--openssl-legacy-provider" # https://qiita.com/cnloni/items/1c83cac956599fb24158
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
