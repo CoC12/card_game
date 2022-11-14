@@ -29,6 +29,9 @@
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
+          <v-btn color="blue darken-1" text @click="execAction">
+            {{ actionLabel }}
+          </v-btn>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="cardDialog = false">
             Close
@@ -49,6 +52,14 @@ export default Vue.extend({
       type: Array[Card],
       required: true,
     },
+    actionLabel: {
+      type: String,
+      required: true,
+    },
+    actionCallback: {
+      type: Function,
+      required: true,
+    },
   },
   data: () => {
     return {
@@ -60,6 +71,10 @@ export default Vue.extend({
     openDialog(card) {
       this.cardDialog = true
       this.clickedCard = card
+    },
+    execAction() {
+      this.cardDialog = false
+      this.actionCallback(this.clickedCard)
     },
   },
 })

@@ -1,6 +1,7 @@
 import sleep from './sleep'
 import PlayerUser from '~/core/domain/player_user'
 import PlayerComputer from '~/core/domain/player_computer'
+import Card from '~/core/domain/card'
 import GameController from '~/core/game_controller'
 import { CardListEmptyException } from '~/core/domain/card_list'
 
@@ -45,9 +46,15 @@ class GameManager {
     this.game_loop()
   }
 
-  game_loop() {
+  async game_loop() {
     try {
       const turnPlayer = this.getTurnPlayer()
+      turnPlayer.assets += this.getSubsidy()
+      await sleep(1000)
+
+      turnPlayer.payCost()
+      await sleep(1000)
+
       turnPlayer.draw(DRAW_COUNT_PER_TURN)
       turnPlayer.waitAction(this.game_controller)
     } catch (e) {
@@ -55,6 +62,17 @@ class GameManager {
         this.isStarted = false
       }
     }
+  }
+
+  getSubsidy() {
+    const baseSubsidy = 1000
+    return this.turnCount * baseSubsidy
+  }
+
+  employ = (card: Card) => {
+    const turnPlayer = this.getTurnPlayer()
+    turnPlayer.assets -= card.cost
+    turnPlayer.employ(card)
   }
 
   async changeTurn() {

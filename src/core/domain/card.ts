@@ -5,16 +5,16 @@ class Card {
   description: string
   imgSrc: string
 
-  cost: Number
-  attack: Number
+  cost: number
+  attack: number
 
   constructor(
     code: string,
     name: string,
     description: string,
     imgSrc: string,
-    cost: Number,
-    attack: Number
+    cost: number,
+    attack: number
   ) {
     this.id = this.getId()
     this.code = code

@@ -5,6 +5,11 @@
     </div>
     <div class="field">
       {{ gameManager.turnCount }}ターン目
+      <CardList
+        :cards="gameManager.playerComputer.field.cards"
+        action-label="XXXXX"
+        :action-callback="() => {}"
+      />
       <div style="height: 20vh"></div>
       <div class="d-flex justify-center">
         <v-btn
@@ -16,9 +21,18 @@
           <div>Change Turn</div>
         </v-btn>
       </div>
+      <CardList
+        :cards="gameManager.playerUser.field.cards"
+        action-label="Attack"
+        :action-callback="() => {}"
+      />
     </div>
     <div class="hand-info">
-      <CardList :cards="gameManager.playerUser.hand.cards" />
+      <CardList
+        :cards="gameManager.playerUser.hand.cards"
+        action-label="Employ"
+        :action-callback="gameManager.employ"
+      />
     </div>
     <div class="status-info">
       <StatusInfo :player="gameManager.playerUser" />
@@ -28,7 +42,7 @@
         <v-card-title> マッチを開始します。 </v-card-title>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green" text @click="startMatch"> start </v-btn>
+          <v-btn color="blue darken-1" text @click="startMatch"> start </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -65,12 +79,12 @@ const gameManager = new GameManager(
     new Deck(
       [...Array(40).keys()].map((d) => {
         return new Card(
-          'test',
-          'test',
-          `test${d}`,
+          'ini-001',
+          'ミニゴブリン' + d,
+          '出撃時: 相手プレイヤーに1ダメージ。',
           'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
           500,
-          2
+          1
         )
       })
     )

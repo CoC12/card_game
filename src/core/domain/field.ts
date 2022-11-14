@@ -1,11 +1,11 @@
 import CardList from './card_list'
 
-class Hand extends CardList {
-  limit_count = 6
+class Field extends CardList {
+  limit_count = 5
 
   constructor() {
     super([])
   }
 }
 
-export default Hand
+export default Field
