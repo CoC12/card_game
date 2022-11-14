@@ -12,6 +12,10 @@ jobs:
   ci:
     runs-on: ${{ matrix.os }}
 
+    defaults:
+      run:
+        working-directory: ./src
+
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -44,16 +48,16 @@ jobs:
         run: yarn
 
       - name: Run linter 👀
-        working-directory: ./src
         run: yarn lint
 
       - name: Run tests 🧪
-        working-directory: ./src
         run: yarn test
 
       - name: Generate
-        working-directory: ./src
-        run: yarn run generate
+        run: |
+          yarn run generate
+          pwd
+          ls -la
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
