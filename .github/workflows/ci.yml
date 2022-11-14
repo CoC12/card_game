@@ -12,10 +12,6 @@ jobs:
   ci:
     runs-on: ${{ matrix.os }}
 
-    defaults:
-      run:
-        working-directory: ./src
-
     strategy:
       matrix:
         os: [ubuntu-latest]
