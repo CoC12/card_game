@@ -25,7 +25,9 @@
                 : ''
             }}
           </div>
-          <div>{{ clickedCard ? clickedCard.description : '' }}</div>
+          <div class="card-dialog-description">
+            {{ clickedCard ? clickedCard.description : '' }}
+          </div>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
@@ -88,5 +90,9 @@ export default Vue.extend({
 
 .card-dialog {
   height: 300px;
+}
+
+.card-dialog-description {
+  white-space: pre-line;
 }
 </style>

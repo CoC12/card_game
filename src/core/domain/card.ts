@@ -8,6 +8,8 @@ class Card {
   cost: number
   attack: number
 
+  isActed = true
+
   constructor(
     code: string,
     name: string,

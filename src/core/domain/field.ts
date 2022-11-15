@@ -1,7 +1,7 @@
 import CardList from './card_list'
 
 class Field extends CardList {
-  limit_count = 5
+  limitCount = 5
 
   constructor() {
     super([])

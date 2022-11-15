@@ -14,8 +14,8 @@ enum TurnPlayer {
 }
 
 class GameManager {
-  playerComputer
-  playerUser
+  playerComputer: PlayerComputer
+  playerUser: PlayerUser
   game_controller: GameController
   turnPlayer: TurnPlayer
 
@@ -75,6 +75,12 @@ class GameManager {
     turnPlayer.employ(card)
   }
 
+  attack = (card: Card) => {
+    const opponentPlayer = this.getOpponentPlayer()
+    opponentPlayer.life -= card.attack
+    card.isActed = true
+  }
+
   async changeTurn() {
     this.showInfo('Change Turn')
     this.turnCount++
@@ -91,6 +97,12 @@ class GameManager {
     return this.turnPlayer === TurnPlayer.COMPUTER
       ? this.playerComputer
       : this.playerUser
+  }
+
+  getOpponentPlayer() {
+    return this.turnPlayer === TurnPlayer.COMPUTER
+      ? this.playerUser
+      : this.playerComputer
   }
 
   showInfo(message: string) {

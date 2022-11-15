@@ -6,7 +6,7 @@ export class CardDoesNotExistsException extends Error {}
 
 class CardList {
   cards: Card[]
-  limit_count = -1
+  limitCount = -1
 
   constructor(cards: Card[]) {
     this.cards = cards
@@ -39,10 +39,10 @@ class CardList {
   }
 
   async validate() {
-    if (this.limit_count > 0) {
+    if (this.limitCount < 0) {
       return
     }
-    if (this.limit_count < this.cards.length) {
+    if (this.limitCount < this.cards.length) {
       await sleep(1000)
       this.cards.pop()
     }

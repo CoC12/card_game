@@ -24,13 +24,13 @@
       <CardList
         :cards="gameManager.playerUser.field.cards"
         action-label="Attack"
-        :action-callback="() => {}"
+        :action-callback="gameManager.attack"
       />
     </div>
     <div class="hand-info">
       <CardList
         :cards="gameManager.playerUser.hand.cards"
-        action-label="Employ"
+        action-label="Contract"
         :action-callback="gameManager.employ"
       />
     </div>
@@ -76,18 +76,50 @@ const gameManager = new GameManager(
     )
   ),
   new PlayerUser(
-    new Deck(
-      [...Array(40).keys()].map((d) => {
+    new Deck([
+      new Card(
+        'ini-001',
+        'ミニゴブリン',
+        '',
+        'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
+        500,
+        1
+      ),
+      new Card(
+        'ini-002',
+        'ゴブリン',
+        '契約時: 相手プレイヤーに1ダメージ。',
+        'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
+        1000,
+        1
+      ),
+      new Card(
+        'ini-003',
+        'ヒールエンジェル',
+        '契約時: 自分プレイヤーを2回復。',
+        'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
+        1000,
+        1
+      ),
+      new Card(
+        'ini-XXX',
+        '侵略者',
+        '契約時: 自分プレイヤーに5ダメージ。\n相手の場の最も古いモンスターを破壊する。\n相手のターン開始時: 相手プレイヤーに3ダメージ。',
+        'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
+        7000,
+        5
+      ),
+      ...[...Array(36).keys()].map((_) => {
         return new Card(
           'ini-001',
-          'ミニゴブリン' + d,
-          '出撃時: 相手プレイヤーに1ダメージ。',
+          'ミニゴブリン',
+          '',
           'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
           500,
           1
         )
-      })
-    )
+      }),
+    ])
   )
 )
 
