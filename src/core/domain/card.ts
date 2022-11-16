@@ -1,3 +1,5 @@
+import Player from './player'
+
 class Card {
   id: string
   code: string
@@ -9,6 +11,7 @@ class Card {
   attack: number
 
   isActed = true
+  owner: Player | null = null
 
   constructor(
     code: string,
@@ -29,6 +32,10 @@ class Card {
 
   getId() {
     return Math.random().toString(32).substring(2)
+  }
+
+  setOwner(owner: Player) {
+    this.owner = owner
   }
 }
 

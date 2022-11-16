@@ -12,11 +12,22 @@ class Player {
   deck: Deck
   hand: Hand
   field: Field
+  // eslint-disable-next-line no-use-before-define
+  opponentPlayer: Player | null = null
+
+  canAct = false
 
   constructor(deck: Deck) {
     this.deck = deck
     this.hand = new Hand()
     this.field = new Field()
+    this.deck.cards.forEach((card) => {
+      card.setOwner(this)
+    })
+  }
+
+  setOpponentPlayer(opponentPlayer: Player) {
+    this.opponentPlayer = opponentPlayer
   }
 
   async draw(count: number) {

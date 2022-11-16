@@ -6,9 +6,8 @@
     <div class="field">
       {{ gameManager.turnCount }}ターン目
       <CardList
-        :cards="gameManager.playerComputer.field.cards"
-        action-label="XXXXX"
-        :action-callback="() => {}"
+        :cards="gameManager.playerComputer.hand.cards"
+        :show-action-button="false"
       />
       <div style="height: 20vh"></div>
       <div class="d-flex justify-center">
@@ -23,15 +22,13 @@
       </div>
       <CardList
         :cards="gameManager.playerUser.field.cards"
-        action-label="Attack"
-        :action-callback="gameManager.attack"
+        :card-state-callback="gameManager.attack"
       />
     </div>
     <div class="hand-info">
       <CardList
         :cards="gameManager.playerUser.hand.cards"
-        action-label="Contract"
-        :action-callback="gameManager.employ"
+        :card-state-callback="gameManager.employ"
       />
     </div>
     <div class="status-info">

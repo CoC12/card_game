@@ -1,4 +1,6 @@
+import assert from 'assert'
 import sleep from './sleep'
+import Player from './domain/player'
 import PlayerUser from '~/core/domain/player_user'
 import PlayerComputer from '~/core/domain/player_computer'
 import Card from '~/core/domain/card'
@@ -8,16 +10,11 @@ import { CardListEmptyException } from '~/core/domain/card_list'
 const DEFAULT_HAND_COUNT = 5
 const DRAW_COUNT_PER_TURN = 1
 
-enum TurnPlayer {
-  COMPUTER,
-  USER,
-}
-
 class GameManager {
+  turnPlayer: Player
   playerComputer: PlayerComputer
   playerUser: PlayerUser
   game_controller: GameController
-  turnPlayer: TurnPlayer
 
   isStarted = false
   turnCount = 1
@@ -29,8 +26,11 @@ class GameManager {
     this.playerComputer = playerComputer
     this.playerUser = playerUser
 
+    this.playerComputer.opponentPlayer = this.playerUser
+    this.playerUser.opponentPlayer = this.playerComputer
+
     this.game_controller = new GameController(this)
-    this.turnPlayer = TurnPlayer.USER
+    this.turnPlayer = this.playerUser
   }
 
   async start() {
@@ -48,15 +48,18 @@ class GameManager {
 
   async game_loop() {
     try {
-      const turnPlayer = this.getTurnPlayer()
-      turnPlayer.assets += this.getSubsidy()
+      this.turnPlayer.field.cards.forEach((card) => {
+        card.isActed = false
+      })
+      this.turnPlayer.assets += this.getSubsidy()
       await sleep(1000)
 
-      turnPlayer.payCost()
+      this.turnPlayer.payCost()
       await sleep(1000)
 
-      turnPlayer.draw(DRAW_COUNT_PER_TURN)
-      turnPlayer.waitAction(this.game_controller)
+      this.turnPlayer.draw(DRAW_COUNT_PER_TURN)
+      this.turnPlayer.canAct = true
+      this.turnPlayer.waitAction(this.game_controller)
     } catch (e) {
       if (e instanceof CardListEmptyException) {
         this.isStarted = false
@@ -70,39 +73,54 @@ class GameManager {
   }
 
   employ = (card: Card) => {
-    const turnPlayer = this.getTurnPlayer()
-    turnPlayer.assets -= card.cost
-    turnPlayer.employ(card)
+    const cardOwner = card.owner
+    assert(cardOwner)
+
+    const label = 'Employ'
+    const disabled = !cardOwner.canAct
+    const actionCallback = () => {
+      if (!cardOwner) return
+      cardOwner.assets -= card.cost
+      cardOwner.employ(card)
+    }
+    return {
+      label,
+      disabled,
+      actionCallback,
+    }
   }
 
   attack = (card: Card) => {
-    const opponentPlayer = this.getOpponentPlayer()
-    opponentPlayer.life -= card.attack
-    card.isActed = true
+    const cardOwner = card.owner
+    assert(cardOwner)
+    const opponentPlayer = cardOwner.opponentPlayer
+    assert(opponentPlayer)
+
+    const label = 'Attack'
+    const disabled = card.isActed || !cardOwner.canAct
+    const actionCallback = () => {
+      opponentPlayer.life -= card.attack
+      card.isActed = true
+    }
+    return {
+      label,
+      disabled,
+      actionCallback,
+    }
   }
 
   async changeTurn() {
+    this.turnPlayer.canAct = false
+
     this.showInfo('Change Turn')
-    this.turnCount++
-    this.turnPlayer =
-      this.turnPlayer === TurnPlayer.COMPUTER
-        ? TurnPlayer.USER
-        : TurnPlayer.COMPUTER
-
     await sleep(2000)
+
+    this.turnCount++
+
+    const opponentPlayer = this.turnPlayer.opponentPlayer
+    assert(opponentPlayer)
+    this.turnPlayer = opponentPlayer
     this.game_loop()
-  }
-
-  getTurnPlayer() {
-    return this.turnPlayer === TurnPlayer.COMPUTER
-      ? this.playerComputer
-      : this.playerUser
-  }
-
-  getOpponentPlayer() {
-    return this.turnPlayer === TurnPlayer.COMPUTER
-      ? this.playerUser
-      : this.playerComputer
   }
 
   showInfo(message: string) {

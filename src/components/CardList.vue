@@ -12,27 +12,36 @@
         ></v-img>
       </div>
     </div>
-    <v-dialog v-model="cardDialog" scrollable max-width="300px">
+    <v-dialog
+      v-if="clickedCard"
+      v-model="cardDialog"
+      scrollable
+      max-width="300px"
+    >
       <v-card>
-        <v-card-title>{{ clickedCard ? clickedCard.name : '' }}</v-card-title>
+        <v-card-title>{{ clickedCard.name }}</v-card-title>
         <v-card-text class="card-dialog">
           <div>
             {{
-              clickedCard
-                ? `[ COST: ${clickedCard.cost.toLocaleString()} / ATK: ${
-                    clickedCard.attack
-                  } ]`
-                : ''
+              `[ COST: ${clickedCard.cost.toLocaleString()} / ATK: ${
+                clickedCard.attack
+              } ]`
             }}
           </div>
           <div class="card-dialog-description">
-            {{ clickedCard ? clickedCard.description : '' }}
+            {{ clickedCard.description }}
           </div>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
-          <v-btn color="blue darken-1" text @click="execAction">
-            {{ actionLabel }}
+          <v-btn
+            v-if="showActionButton"
+            color="blue darken-1"
+            text
+            :disabled="cardState().disabled"
+            @click="execAction"
+          >
+            {{ cardState().label }}
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="cardDialog = false">
@@ -54,13 +63,13 @@ export default Vue.extend({
       type: Array[Card],
       required: true,
     },
-    actionLabel: {
-      type: String,
-      required: true,
-    },
-    actionCallback: {
+    cardStateCallback: {
       type: Function,
-      required: true,
+      default: () => {},
+    },
+    showActionButton: {
+      type: Boolean,
+      default: true,
     },
   },
   data: () => {
@@ -76,7 +85,10 @@ export default Vue.extend({
     },
     execAction() {
       this.cardDialog = false
-      this.actionCallback(this.clickedCard)
+      this.cardState().actionCallback()
+    },
+    cardState() {
+      return this.cardStateCallback(this.clickedCard)
     },
   },
 })
