@@ -6,7 +6,7 @@
     <div class="field">
       {{ gameManager.turnCount }}ターン目
       <CardList
-        :cards="gameManager.playerComputer.hand.cards"
+        :cards="gameManager.playerComputer.field.cards"
         :show-action-button="false"
       />
       <div style="height: 20vh"></div>
@@ -28,7 +28,7 @@
     <div class="hand-info">
       <CardList
         :cards="gameManager.playerUser.hand.cards"
-        :card-state-callback="gameManager.employ"
+        :card-state-callback="gameManager.contract"
       />
     </div>
     <div class="status-info">
@@ -67,7 +67,10 @@ const gameManager = new GameManager(
           'test',
           'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
           500,
-          2
+          2,
+          () => {},
+          () => {},
+          () => {}
         )
       })
     )
@@ -80,7 +83,10 @@ const gameManager = new GameManager(
         '',
         'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
         500,
-        1
+        1,
+        () => {},
+        () => {},
+        () => {}
       ),
       new Card(
         'ini-002',
@@ -88,7 +94,12 @@ const gameManager = new GameManager(
         '契約時: 相手プレイヤーに1ダメージ。',
         'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
         1000,
-        1
+        1,
+        (card) => {
+          card.owner.opponentPlayer.life -= 1
+        },
+        () => {},
+        () => {}
       ),
       new Card(
         'ini-003',
@@ -96,24 +107,53 @@ const gameManager = new GameManager(
         '契約時: 自分プレイヤーを2回復。',
         'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
         1000,
-        1
+        1,
+        (card) => {
+          card.owner.life += 2
+        },
+        () => {},
+        () => {}
+      ),
+      new Card(
+        'ini-004',
+        'ガーディアン',
+        '自分プレイヤーが受けるダメージを0にし、このカードを破壊する。',
+        'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
+        1000,
+        1,
+        () => {},
+        () => {},
+        () => {}
       ),
       new Card(
         'ini-XXX',
         '侵略者',
-        '契約時: 自分プレイヤーに5ダメージ。\n相手の場の最も古いモンスターを破壊する。\n相手のターン開始時: 相手プレイヤーに3ダメージ。',
+        '契約時: 自分プレイヤーに5ダメージ。\n相手の場の最も古いカードを破壊する。\n相手のターン開始時: 相手プレイヤーに3ダメージ。',
         'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
         7000,
-        5
+        5,
+        (card) => {
+          card.owner.life -= 5
+          try {
+            card.owner.opponentPlayer.field.popTopCard()
+          } catch (e) {}
+        },
+        () => {},
+        (card) => {
+          card.owner.opponentPlayer.life -= 3
+        }
       ),
-      ...[...Array(36).keys()].map((_) => {
+      ...[...Array(35).keys()].map((_) => {
         return new Card(
           'ini-001',
           'ミニゴブリン',
           '',
           'https://m.media-amazon.com/images/I/61rjYa6-ceL._AC_.jpg',
           500,
-          1
+          1,
+          () => {},
+          () => {},
+          () => {}
         )
       }),
     ])

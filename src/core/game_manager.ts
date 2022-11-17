@@ -48,6 +48,14 @@ class GameManager {
 
   async game_loop() {
     try {
+      assert(this.turnPlayer.opponentPlayer)
+
+      this.turnPlayer.field.cards.forEach((card) => {
+        card.onStartedOwnerTurn(card)
+      })
+      this.turnPlayer.opponentPlayer.field.cards.forEach((card) => {
+        card.onStartedOpponentTurn(card)
+      })
       this.turnPlayer.field.cards.forEach((card) => {
         card.isActed = false
       })
@@ -72,16 +80,16 @@ class GameManager {
     return this.turnCount * baseSubsidy
   }
 
-  employ = (card: Card) => {
+  contract = (card: Card) => {
     const cardOwner = card.owner
     assert(cardOwner)
 
-    const label = 'Employ'
+    const label = 'Contract'
     const disabled = !cardOwner.canAct
     const actionCallback = () => {
-      if (!cardOwner) return
+      card.onContracted(card)
       cardOwner.assets -= card.cost
-      cardOwner.employ(card)
+      cardOwner.contract(card)
     }
     return {
       label,

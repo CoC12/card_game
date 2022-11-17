@@ -9,6 +9,9 @@ class Card {
 
   cost: number
   attack: number
+  onContracted: Function
+  onStartedOwnerTurn: Function
+  onStartedOpponentTurn: Function
 
   isActed = true
   owner: Player | null = null
@@ -19,7 +22,10 @@ class Card {
     description: string,
     imgSrc: string,
     cost: number,
-    attack: number
+    attack: number,
+    onContracted = () => {},
+    onStartedOwnerTurn = () => {},
+    onStartedOpponentTurn = () => {}
   ) {
     this.id = this.getId()
     this.code = code
@@ -28,6 +34,9 @@ class Card {
     this.imgSrc = imgSrc
     this.cost = cost
     this.attack = attack
+    this.onContracted = onContracted
+    this.onStartedOwnerTurn = onStartedOwnerTurn
+    this.onStartedOpponentTurn = onStartedOpponentTurn
   }
 
   getId() {

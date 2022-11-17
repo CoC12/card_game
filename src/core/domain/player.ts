@@ -47,7 +47,7 @@ class Player {
 
   waitAction(_: GameController) {}
 
-  employ(card: Card) {
+  contract(card: Card) {
     this.hand.popCardById(card.id)
     this.field.addToLast(card)
   }

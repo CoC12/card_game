@@ -33,6 +33,14 @@ class CardList {
     return card
   }
 
+  popLastCard() {
+    const card = this.cards.pop()
+    if (card == null) {
+      throw new CardListEmptyException()
+    }
+    return card
+  }
+
   addToLast(card: Card) {
     this.cards.push(card)
     this.validate()
