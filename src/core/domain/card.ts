@@ -16,27 +16,27 @@ class Card {
   isActed = true
   owner: Player | null = null
 
-  constructor(
-    code: string,
-    name: string,
-    description: string,
-    imgSrc: string,
-    cost: number,
-    attack: number,
-    onContracted = () => {},
-    onStartedOwnerTurn = () => {},
-    onStartedOpponentTurn = () => {}
-  ) {
+  constructor(args: {
+    code: string
+    name: string
+    description: string
+    imgSrc: string
+    cost: number
+    attack: number
+    onContracted: Function
+    onStartedOwnerTurn: Function
+    onStartedOpponentTurn: Function
+  }) {
     this.id = this.getId()
-    this.code = code
-    this.name = name
-    this.description = description
-    this.imgSrc = imgSrc
-    this.cost = cost
-    this.attack = attack
-    this.onContracted = onContracted
-    this.onStartedOwnerTurn = onStartedOwnerTurn
-    this.onStartedOpponentTurn = onStartedOpponentTurn
+    this.code = args.code
+    this.name = args.name
+    this.description = args.description
+    this.imgSrc = args.imgSrc
+    this.cost = args.cost
+    this.attack = args.attack
+    this.onContracted = args.onContracted
+    this.onStartedOwnerTurn = args.onStartedOwnerTurn
+    this.onStartedOpponentTurn = args.onStartedOpponentTurn
   }
 
   getId() {

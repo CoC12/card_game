@@ -5,7 +5,7 @@
         <v-img
           contain
           :src="card.imgSrc"
-          :aspect-ratio="59 / 86"
+          :aspect-ratio="2 / 3"
           width="13vw"
           height="13vh"
           @click="openDialog(card)"
