@@ -87,7 +87,8 @@ const deckDataComputer = {
 const deckDataPlayer = {
   'ini-001': 1,
   'ini-002': 1,
-  'ini-003': 2,
+  'ini-003': 1,
+  'ini-005': 1,
   'ini-006': 2,
   'ini-004': 31,
   'ini-012': 3,

@@ -51,6 +51,35 @@ export default {
       return life
     },
   },
+  'ini-005': {
+    code: 'ini-005',
+    name: '魂の契約人',
+    description:
+      '自分のターン開始時: 自分の場の最もコストの高いカードを破壊する。\n相手のターン開始時: 相手の場の最もコストの低いカードを破壊する。',
+    imgSrc: require('@/assets/images/cards/ini-005.png'),
+    cost: 3000,
+    attack: 1,
+    onStartedOwnerTurn: (card: Card) => {
+      if (!card.owner?.field.length()) {
+        return
+      }
+      const targetCard = card.owner?.field.cards.reduce(
+        (prevCard: Card, currentCard: Card) =>
+          prevCard.cost > currentCard.cost ? prevCard : currentCard
+      )
+      card.owner?.destroy(targetCard)
+    },
+    onStartedOpponentTurn: (card: Card) => {
+      if (!card.owner?.opponentPlayer?.field.length()) {
+        return
+      }
+      const targetCard = card.owner?.opponentPlayer?.field.cards.reduce(
+        (prevCard: Card, currentCard: Card) =>
+          prevCard.cost < currentCard.cost ? prevCard : currentCard
+      )
+      card.owner?.opponentPlayer?.destroy(targetCard)
+    },
+  },
   'ini-006': {
     code: 'ini-006',
     name: '禁戒の研究者',
