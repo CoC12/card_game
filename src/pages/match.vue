@@ -53,10 +53,12 @@
 
 <script>
 import Vue from 'vue'
+import Card from '~/core/domain/card'
 import Deck from '~/core/domain/deck'
 import GameManager from '~/core/game_manager'
 import PlayerUser from '~/core/domain/player_user'
 import PlayerComputer from '~/core/domain/player_computer'
+import cardsData from '~/core/cards/cards'
 
 // new Card(
 //   'ini-XXX',
@@ -85,49 +87,43 @@ const deckDataComputer = {
 const deckDataPlayer = {
   'ini-001': 1,
   'ini-002': 1,
-  'ini-003': 1,
-  'ini-004': 37,
+  'ini-003': 2,
+  'ini-006': 2,
+  'ini-004': 31,
+  'ini-012': 3,
 }
 
-const setupGameManager = async () => {
-  const cardsComputer = []
-  for (const [code, count] of Object.entries(deckDataComputer)) {
-    for (let i = 0; i < count; i++) {
-      const cardModule = await import(`~/core/cards/${code}`)
-      const CardClass = cardModule.default
-      cardsComputer.push(new CardClass())
-    }
+const cardsComputer = []
+for (const [code, count] of Object.entries(deckDataComputer)) {
+  for (let i = 0; i < count; i++) {
+    const card = new Card(cardsData[code])
+    cardsComputer.push(card)
   }
-  const deckComputer = new Deck(cardsComputer)
-
-  const cardsPlayer = []
-  for (const [code, count] of Object.entries(deckDataPlayer)) {
-    for (let i = 0; i < count; i++) {
-      const cardModule = await import(`~/core/cards/${code}`)
-      const CardClass = cardModule.default
-      cardsPlayer.push(new CardClass())
-    }
-  }
-  const deckPlayer = new Deck(cardsPlayer)
-
-  const gameManager = new GameManager(
-    new PlayerComputer(deckComputer),
-    new PlayerUser(deckPlayer)
-  )
-  return gameManager
 }
+
+const cardsPlayer = []
+for (const [code, count] of Object.entries(deckDataPlayer)) {
+  for (let i = 0; i < count; i++) {
+    const card = new Card(cardsData[code])
+    cardsPlayer.push(card)
+  }
+}
+
+const gameManager = new GameManager(
+  new PlayerComputer(new Deck(cardsComputer)),
+  new PlayerUser(new Deck(cardsPlayer))
+)
 
 export default Vue.extend({
   name: 'MatchPage',
   data: () => {
     return {
       startDialog: true,
-      gameManager: null,
+      gameManager,
     }
   },
   methods: {
-    async startMatch() {
-      this.gameManager = await setupGameManager()
+    startMatch() {
       this.startDialog = false
       this.gameManager.start()
     },

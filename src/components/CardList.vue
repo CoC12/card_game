@@ -23,13 +23,14 @@
         <v-card-text class="card-dialog">
           <div>
             {{
-              `[ COST: ${clickedCard.cost.toLocaleString()} / ATK: ${
+              `[ COST: $${clickedCard.cost.toLocaleString()} / ATK: ${
                 clickedCard.attack
               } ]`
             }}
           </div>
           <div class="card-dialog-description">
             {{ clickedCard.description }}
+            {{ clickedCard.additionalDescription(clickedCard) }}
           </div>
         </v-card-text>
         <v-divider></v-divider>

@@ -59,10 +59,10 @@ class GameManager {
       this.turnPlayer.field.cards.forEach((card) => {
         card.isActed = false
       })
-      this.turnPlayer.assets += this.getSubsidy()
+      this.turnPlayer.increaseAssets(this.getSubsidy())
       await sleep(1000)
 
-      this.turnPlayer.payCost()
+      this.turnPlayer.payFieldCardCost()
       await sleep(1000)
 
       this.turnPlayer.draw(DRAW_COUNT_PER_TURN)
@@ -87,8 +87,7 @@ class GameManager {
     const label = 'Contract'
     const disabled = !cardOwner.canAct
     const actionCallback = () => {
-      card.onContracted(card)
-      cardOwner.assets -= card.cost
+      cardOwner.decreaseAssets(card.cost)
       cardOwner.contract(card)
     }
     return {
@@ -107,7 +106,7 @@ class GameManager {
     const label = 'Attack'
     const disabled = card.isActed || !cardOwner.canAct
     const actionCallback = () => {
-      opponentPlayer.life -= card.attack
+      opponentPlayer.decreaseLife(card.attack)
       card.isActed = true
     }
     return {

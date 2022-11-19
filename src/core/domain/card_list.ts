@@ -41,6 +41,15 @@ class CardList {
     return card
   }
 
+  popRandomCard(condition = (_: Card) => true) {
+    const targetCards = this.cards.filter(condition)
+    if (targetCards.length === 0) {
+      throw new CardDoesNotExistsException()
+    }
+    const targetIndex = Math.floor(Math.random() * targetCards.length)
+    return this.popCardById(targetCards[targetIndex].id)
+  }
+
   addToLast(card: Card) {
     this.cards.push(card)
     this.validate()
