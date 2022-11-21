@@ -88,10 +88,15 @@ const deckDataPlayer = {
   'ini-001': 1,
   'ini-002': 1,
   'ini-003': 1,
+  'ini-004': 1,
   'ini-005': 1,
-  'ini-006': 2,
-  'ini-004': 31,
-  'ini-012': 3,
+  'ini-006': 1,
+  'ini-007': 1,
+  'ini-008': 1,
+  'ini-009': 1,
+  'ini-010': 1,
+  'ini-011': 1,
+  'ini-012': 29,
 }
 
 const cardsComputer = []

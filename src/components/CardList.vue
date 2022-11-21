@@ -86,7 +86,7 @@ export default Vue.extend({
     },
     execAction() {
       this.cardDialog = false
-      this.cardState().actionCallback()
+      this.cardState().actionCallback(this.clickedCard)
     },
     cardState() {
       return this.cardStateCallback(this.clickedCard)

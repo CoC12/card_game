@@ -71,17 +71,29 @@ class Player {
   waitAction(_: GameController) {}
 
   async contract(card: Card) {
-    this.hand.popCardById(card.id)
-    this.field.addToLast(card)
+    card.owner?.decreaseAssets(card.cost)
+    card.owner?.hand.popCardById(card.id)
+    card.owner?.field.addToLast(card)
     await sleep(300)
     card.onContracted(card)
   }
 
-  async destroy(card: Card) {
-    this.field.popCardById(card.id)
-    this.destroyedCards.addToLast(card)
+  async attack(card: Card) {
+    card.owner?.opponentPlayer?.decreaseLife(card.attack)
+    card.isActed = true
     await sleep(300)
-    card.onDestroyed(card)
+    card.onAttacked(card)
+  }
+
+  async destroy(destroyedCard: Card) {
+    destroyedCard.owner?.field.popCardById(destroyedCard.id)
+    destroyedCard.owner?.destroyedCards.addToLast(destroyedCard)
+    await sleep(300)
+    destroyedCard.onDestroyed(destroyedCard)
+    await sleep(300)
+    destroyedCard.owner?.field.cards.forEach((card) => {
+      card.onOwnerCardDestroyed(card, destroyedCard)
+    })
   }
 }
 

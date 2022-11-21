@@ -6,20 +6,24 @@ type AdditionalDescriptionCallback = { (card: Card): string }
 type CardCallback = { (card: Card): void }
 // eslint-disable-next-line no-use-before-define
 type LifeCallback = { (card: Card, life: number): number }
+// eslint-disable-next-line no-use-before-define
+type CardDestroyedCallback = { (card: Card, destroyedCard: Card): void }
 
-type CardConstructor = {
+export type CardConstructor = {
   code: string
   name: string
   description: string
-  additionalDescription: AdditionalDescriptionCallback
+  additionalDescription?: AdditionalDescriptionCallback
   imgSrc: string
   cost: number
   attack: number
   onContracted?: CardCallback
+  onAttacked?: CardCallback
   onDestroyed?: CardCallback
   onStartedOwnerTurn?: CardCallback
   onStartedOpponentTurn?: CardCallback
   onOwnerLifeDecreased?: LifeCallback
+  onOwnerCardDestroyed?: CardDestroyedCallback
 }
 
 class Card {
@@ -33,10 +37,12 @@ class Card {
   cost: number
   attack: number
   onContracted: CardCallback
+  onAttacked: CardCallback
   onDestroyed: CardCallback
   onStartedOwnerTurn: CardCallback
   onStartedOpponentTurn: CardCallback
   onOwnerLifeDecreased: LifeCallback
+  onOwnerCardDestroyed: CardDestroyedCallback
 
   isActed = true
   owner: Player | null = null
@@ -50,10 +56,12 @@ class Card {
     cost,
     attack,
     onContracted = () => {},
+    onAttacked = () => {},
     onDestroyed = () => {},
     onStartedOwnerTurn = () => {},
     onStartedOpponentTurn = () => {},
     onOwnerLifeDecreased = (_, life) => life,
+    onOwnerCardDestroyed = () => {},
   }: CardConstructor) {
     this.id = this.getId()
     this.code = code
@@ -64,10 +72,12 @@ class Card {
     this.cost = cost
     this.attack = attack
     this.onContracted = onContracted
+    this.onAttacked = onAttacked
     this.onDestroyed = onDestroyed
     this.onStartedOwnerTurn = onStartedOwnerTurn
     this.onStartedOpponentTurn = onStartedOpponentTurn
     this.onOwnerLifeDecreased = onOwnerLifeDecreased
+    this.onOwnerCardDestroyed = onOwnerCardDestroyed
   }
 
   getId() {

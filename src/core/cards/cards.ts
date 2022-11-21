@@ -1,7 +1,12 @@
 import assert from 'assert'
-import Card from '~/core/domain/card'
+import Card, { CardConstructor } from '~/core/domain/card'
+import cardsData from '~/core/cards/cards'
 
-export default {
+interface cardDataInterface {
+  [key: string]: CardConstructor
+}
+
+const cardData: cardDataInterface = {
   'ini-001': {
     code: 'ini-001',
     name: 'ミニゴブリン',
@@ -53,10 +58,26 @@ export default {
   },
   'ini-005': {
     code: 'ini-005',
+    name: '神秘の祠',
+    description:
+      '自分の場のカードが破壊されたとき、それと同名のカード1枚を場に出して、このカードを破壊する。',
+    imgSrc: require('@/assets/images/cards/ini-005.png'),
+    cost: 2000,
+    attack: 0,
+    onOwnerCardDestroyed: (card: Card, destroyedCard: Card) => {
+      assert(card.owner)
+      const newCard = new Card(cardsData[destroyedCard.code])
+      newCard.setOwner(card.owner)
+      card.owner.field.addToLast(newCard)
+      card.owner?.destroy(card)
+    },
+  },
+  'ini-006': {
+    code: 'ini-006',
     name: '魂の契約人',
     description:
       '自分のターン開始時: 自分の場の最もコストの高いカードを破壊する。\n相手のターン開始時: 相手の場の最もコストの低いカードを破壊する。',
-    imgSrc: require('@/assets/images/cards/ini-005.png'),
+    imgSrc: require('@/assets/images/cards/ini-006.png'),
     cost: 3000,
     attack: 1,
     onStartedOwnerTurn: (card: Card) => {
@@ -80,12 +101,32 @@ export default {
       card.owner?.opponentPlayer?.destroy(targetCard)
     },
   },
-  'ini-006': {
-    code: 'ini-006',
+  'ini-007': {
+    code: 'ini-007',
+    name: '孤高の傀儡師',
+    description:
+      '攻撃時: 自分の場の最もコストの高いカードを破壊する。相手プレイヤーにXダメージ。Xは「破壊したカードの攻撃力の値」である。',
+    imgSrc: require('@/assets/images/cards/ini-007.png'),
+    cost: 3000,
+    attack: 0,
+    onAttacked: (card: Card) => {
+      if (!card.owner?.field.length()) {
+        return
+      }
+      const targetCard = card.owner?.field.cards.reduce(
+        (prevCard: Card, currentCard: Card) =>
+          prevCard.cost > currentCard.cost ? prevCard : currentCard
+      )
+      card.owner.destroy(targetCard)
+      card.owner.opponentPlayer?.decreaseLife(targetCard.attack)
+    },
+  },
+  'ini-008': {
+    code: 'ini-008',
     name: '禁戒の研究者',
     description:
       '契約時: カードを1枚引く。\n破壊時: 自分のデッキからコスト$7,000以上のカードをランダムに1枚手札に加える。',
-    imgSrc: require('@/assets/images/cards/ini-006.png'),
+    imgSrc: require('@/assets/images/cards/ini-008.png'),
     cost: 4000,
     attack: 4,
     onContracted: (card: Card) => {
@@ -103,11 +144,48 @@ export default {
       } catch (e) {}
     },
   },
+  'ini-009': {
+    code: 'ini-009',
+    name: 'ゴブリンライダー',
+    description: '破壊時: ゴブリン1枚を場に出す。',
+    imgSrc: require('@/assets/images/cards/ini-009.png'),
+    cost: 4000,
+    attack: 4,
+    onDestroyed: (card: Card) => {
+      assert(card.owner)
+      const goblinId = 'ini-002'
+      const goblinCard = new Card(cardsData[goblinId])
+      goblinCard.setOwner(card.owner)
+      card.owner.field.addToLast(goblinCard)
+    },
+  },
+  'ini-010': {
+    code: 'ini-010',
+    name: '業火の使い鳥',
+    description: '破壊時: カードを2枚引く。',
+    imgSrc: require('@/assets/images/cards/ini-010.png'),
+    cost: 5000,
+    attack: 5,
+    onDestroyed: (card: Card) => {
+      card.owner?.draw(2)
+    },
+  },
+  'ini-011': {
+    code: 'ini-011',
+    name: '薬草売りの老婆',
+    description: '破壊時: 自分のプレイヤーを5回復。',
+    imgSrc: require('@/assets/images/cards/ini-011.png'),
+    cost: 5000,
+    attack: 2,
+    onDestroyed: (card: Card) => {
+      card.owner?.increaseLife(5)
+    },
+  },
   'ini-012': {
     code: 'ini-012',
     name: '沈黙の死神',
     description:
-      '契約時: 相手プレイヤーにXダメージ。Xは「このゲーム中に破壊された自分のカードの枚数」である。',
+      '契約時: 相手プレイヤーにXダメージ。Xは「このゲーム中に破壊された自分のカードの数」である。',
     additionalDescription: (card: Card) =>
       `(Xは${card.owner?.destroyedCards.cards.length}）`,
     imgSrc: require('@/assets/images/cards/ini-012.png'),
@@ -120,3 +198,5 @@ export default {
     },
   },
 }
+
+export default cardData

@@ -81,38 +81,18 @@ class GameManager {
   }
 
   contract = (card: Card) => {
-    const cardOwner = card.owner
-    assert(cardOwner)
-
-    const label = 'Contract'
-    const disabled = !cardOwner.canAct
-    const actionCallback = () => {
-      cardOwner.decreaseAssets(card.cost)
-      cardOwner.contract(card)
-    }
     return {
-      label,
-      disabled,
-      actionCallback,
+      label: 'Contract',
+      disabled: !card.owner?.canAct,
+      actionCallback: card.owner?.contract,
     }
   }
 
   attack = (card: Card) => {
-    const cardOwner = card.owner
-    assert(cardOwner)
-    const opponentPlayer = cardOwner.opponentPlayer
-    assert(opponentPlayer)
-
-    const label = 'Attack'
-    const disabled = card.isActed || !cardOwner.canAct
-    const actionCallback = () => {
-      opponentPlayer.decreaseLife(card.attack)
-      card.isActed = true
-    }
     return {
-      label,
-      disabled,
-      actionCallback,
+      label: 'Attack',
+      disabled: card.isActed || !card.owner?.canAct,
+      actionCallback: card.owner?.attack,
     }
   }
 
