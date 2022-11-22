@@ -1,5 +1,5 @@
 <template>
-  <div class="hand">
+  <div>
     <div class="d-flex justify-center">
       <div v-for="card in cards" :key="card.id" class="card">
         <v-img
