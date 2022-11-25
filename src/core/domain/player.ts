@@ -1,3 +1,4 @@
+import assert from 'assert'
 import Deck from './deck'
 import Hand from './hand'
 import Field from './field'
@@ -56,7 +57,7 @@ class Player {
   async draw(count: number) {
     for (let i = 0; i < count; i++) {
       const card = this.deck.popTopCard()
-      this.hand.addToLast(card)
+      await this.hand.addToLast(card)
       await sleep(300)
     }
   }
@@ -73,7 +74,7 @@ class Player {
   async contract(card: Card) {
     card.owner?.decreaseAssets(card.cost)
     card.owner?.hand.popCardById(card.id)
-    card.owner?.field.addToLast(card)
+    await card.owner?.field.addToLast(card)
     await sleep(300)
     card.onContracted(card)
   }
@@ -87,13 +88,15 @@ class Player {
 
   async destroy(destroyedCard: Card) {
     destroyedCard.owner?.field.popCardById(destroyedCard.id)
-    destroyedCard.owner?.destroyedCards.addToLast(destroyedCard)
+    await destroyedCard.owner?.destroyedCards.addToLast(destroyedCard)
     await sleep(300)
-    destroyedCard.onDestroyed(destroyedCard)
+    await destroyedCard.onDestroyed(destroyedCard)
     await sleep(300)
-    destroyedCard.owner?.field.cards.forEach((card) => {
-      card.onOwnerCardDestroyed(card, destroyedCard)
-    })
+    assert(destroyedCard.owner)
+    for (let i = 0; i < destroyedCard.owner.field.length(); i++) {
+      const card = destroyedCard.owner.field.cards[i]
+      await card.onOwnerCardDestroyed(card, destroyedCard)
+    }
   }
 }
 

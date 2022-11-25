@@ -78,29 +78,23 @@ import cardsData from '~/core/cards/cards'
 //     card.owner.opponentPlayer.life -= 3
 //   }
 // ),
-const deckDataComputer = {
-  'ini-001': 1,
-  'ini-002': 1,
-  'ini-003': 1,
-  'ini-004': 37,
-}
-const deckDataPlayer = {
-  'ini-001': 1,
-  'ini-002': 1,
-  'ini-003': 1,
-  'ini-004': 1,
-  'ini-005': 1,
-  'ini-006': 1,
-  'ini-007': 1,
-  'ini-008': 1,
-  'ini-009': 1,
-  'ini-010': 1,
-  'ini-011': 1,
-  'ini-012': 29,
+const sampleDeck = {
+  'ini-001': 3,
+  'ini-002': 3,
+  'ini-003': 3,
+  'ini-004': 3,
+  'ini-005': 3,
+  'ini-006': 3,
+  'ini-007': 3,
+  'ini-008': 3,
+  'ini-009': 3,
+  'ini-010': 3,
+  'ini-011': 3,
+  'ini-012': 7,
 }
 
 const cardsComputer = []
-for (const [code, count] of Object.entries(deckDataComputer)) {
+for (const [code, count] of Object.entries(sampleDeck)) {
   for (let i = 0; i < count; i++) {
     const card = new Card(cardsData[code])
     cardsComputer.push(card)
@@ -108,7 +102,7 @@ for (const [code, count] of Object.entries(deckDataComputer)) {
 }
 
 const cardsPlayer = []
-for (const [code, count] of Object.entries(deckDataPlayer)) {
+for (const [code, count] of Object.entries(sampleDeck)) {
   for (let i = 0; i < count; i++) {
     const card = new Card(cardsData[code])
     cardsPlayer.push(card)
@@ -129,6 +123,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    /**
+     * マッチを開始する。
+     */
     startMatch() {
       this.startDialog = false
       this.gameManager.start()

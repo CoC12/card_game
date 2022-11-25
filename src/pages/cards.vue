@@ -68,7 +68,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text href="/"> Back </v-btn>
+          <v-btn color="blue darken-1" text href="."> Back </v-btn>
         </v-card-actions>
       </v-card>
     </v-col>
@@ -90,6 +90,10 @@ export default Vue.extend({
     }
   },
   methods: {
+    /**
+     * 指定したカードのダイアログを表示する。
+     * @param {Card} card ダイアログに表示するカード
+     */
     openDialog(card) {
       this.cardDialog = true
       this.clickedCard = card

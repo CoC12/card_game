@@ -80,14 +80,24 @@ export default Vue.extend({
     }
   },
   methods: {
+    /**
+     * 指定したカードのダイアログを表示する。
+     * @param {Card} card ダイアログに表示するカード
+     */
     openDialog(card) {
       this.cardDialog = true
       this.clickedCard = card
     },
+    /**
+     * ダイアログのボタンを押下した際のコールバック処理。
+     */
     execAction() {
       this.cardDialog = false
       this.cardState().actionCallback(this.clickedCard)
     },
+    /**
+     * カードの状態を返す。
+     */
     cardState() {
       return this.cardStateCallback(this.clickedCard)
     },

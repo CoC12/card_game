@@ -1,9 +1,8 @@
 import CardList from './card_list'
 
-class DestroyedCards extends CardList {
-  constructor() {
-    super([])
-  }
-}
+/**
+ * デッキに関する情報を保持するクラス
+ */
+class DestroyedCards extends CardList {}
 
 export default DestroyedCards

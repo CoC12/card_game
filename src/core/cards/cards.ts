@@ -1,4 +1,5 @@
 import assert from 'assert'
+import sleep from '../sleep'
 import Card, { CardConstructor } from '~/core/domain/card'
 import cardsData from '~/core/cards/cards'
 
@@ -22,10 +23,11 @@ const cardData: cardDataInterface = {
     imgSrc: require('@/assets/images/cards/ini-002.png'),
     cost: 1000,
     attack: 1,
-    onContracted: (card: Card) => {
+    onContracted: async (card: Card) => {
       assert(card.owner)
       assert(card.owner.opponentPlayer)
       card.owner.opponentPlayer.decreaseLife(1)
+      await sleep(100)
     },
   },
   'ini-003': {
@@ -35,9 +37,10 @@ const cardData: cardDataInterface = {
     imgSrc: require('@/assets/images/cards/ini-003.png'),
     cost: 1000,
     attack: 1,
-    onContracted: (card: Card) => {
+    onContracted: async (card: Card) => {
       assert(card.owner)
       card.owner.increaseLife(2)
+      await sleep(100)
     },
   },
   'ini-004': {
@@ -64,12 +67,13 @@ const cardData: cardDataInterface = {
     imgSrc: require('@/assets/images/cards/ini-005.png'),
     cost: 2000,
     attack: 0,
-    onOwnerCardDestroyed: (card: Card, destroyedCard: Card) => {
+    onOwnerCardDestroyed: async (card: Card, destroyedCard: Card) => {
       assert(card.owner)
       const newCard = new Card(cardsData[destroyedCard.code])
       newCard.setOwner(card.owner)
-      card.owner.field.addToLast(newCard)
+      await card.owner.field.addToLast(newCard)
       card.owner?.destroy(card)
+      await sleep(100)
     },
   },
   'ini-006': {
@@ -80,7 +84,7 @@ const cardData: cardDataInterface = {
     imgSrc: require('@/assets/images/cards/ini-006.png'),
     cost: 3000,
     attack: 1,
-    onStartedOwnerTurn: (card: Card) => {
+    onStartedOwnerTurn: async (card: Card) => {
       if (!card.owner?.field.length()) {
         return
       }
@@ -89,8 +93,9 @@ const cardData: cardDataInterface = {
           prevCard.cost > currentCard.cost ? prevCard : currentCard
       )
       card.owner?.destroy(targetCard)
+      await sleep(100)
     },
-    onStartedOpponentTurn: (card: Card) => {
+    onStartedOpponentTurn: async (card: Card) => {
       if (!card.owner?.opponentPlayer?.field.length()) {
         return
       }
@@ -99,6 +104,7 @@ const cardData: cardDataInterface = {
           prevCard.cost < currentCard.cost ? prevCard : currentCard
       )
       card.owner?.opponentPlayer?.destroy(targetCard)
+      await sleep(100)
     },
   },
   'ini-007': {
@@ -109,7 +115,7 @@ const cardData: cardDataInterface = {
     imgSrc: require('@/assets/images/cards/ini-007.png'),
     cost: 3000,
     attack: 0,
-    onAttacked: (card: Card) => {
+    onAttacked: async (card: Card) => {
       if (!card.owner?.field.length()) {
         return
       }
@@ -119,6 +125,7 @@ const cardData: cardDataInterface = {
       )
       card.owner.destroy(targetCard)
       card.owner.opponentPlayer?.decreaseLife(targetCard.attack)
+      await sleep(100)
     },
   },
   'ini-008': {
@@ -129,10 +136,11 @@ const cardData: cardDataInterface = {
     imgSrc: require('@/assets/images/cards/ini-008.png'),
     cost: 4000,
     attack: 4,
-    onContracted: (card: Card) => {
+    onContracted: async (card: Card) => {
       card.owner?.draw(1)
+      await sleep(100)
     },
-    onDestroyed: (card: Card) => {
+    onDestroyed: async (card: Card) => {
       try {
         const targetCard = card.owner?.deck.popRandomCard(
           (card) => card.cost >= 7000
@@ -140,8 +148,9 @@ const cardData: cardDataInterface = {
         if (!targetCard) {
           return
         }
-        card.owner?.hand.addToLast(targetCard)
+        await card.owner?.hand.addToLast(targetCard)
       } catch (e) {}
+      await sleep(100)
     },
   },
   'ini-009': {
@@ -151,12 +160,13 @@ const cardData: cardDataInterface = {
     imgSrc: require('@/assets/images/cards/ini-009.png'),
     cost: 4000,
     attack: 4,
-    onDestroyed: (card: Card) => {
+    onDestroyed: async (card: Card) => {
       assert(card.owner)
       const goblinId = 'ini-002'
       const goblinCard = new Card(cardsData[goblinId])
       goblinCard.setOwner(card.owner)
-      card.owner.field.addToLast(goblinCard)
+      await card.owner.field.addToLast(goblinCard)
+      await sleep(100)
     },
   },
   'ini-010': {
@@ -166,8 +176,9 @@ const cardData: cardDataInterface = {
     imgSrc: require('@/assets/images/cards/ini-010.png'),
     cost: 5000,
     attack: 5,
-    onDestroyed: (card: Card) => {
+    onDestroyed: async (card: Card) => {
       card.owner?.draw(2)
+      await sleep(100)
     },
   },
   'ini-011': {
@@ -177,8 +188,9 @@ const cardData: cardDataInterface = {
     imgSrc: require('@/assets/images/cards/ini-011.png'),
     cost: 5000,
     attack: 2,
-    onDestroyed: (card: Card) => {
+    onDestroyed: async (card: Card) => {
       card.owner?.increaseLife(5)
+      await sleep(100)
     },
   },
   'ini-012': {
@@ -191,10 +203,11 @@ const cardData: cardDataInterface = {
     imgSrc: require('@/assets/images/cards/ini-012.png'),
     cost: 7000,
     attack: 6,
-    onContracted: (card: Card) => {
+    onContracted: async (card: Card) => {
       assert(card.owner)
       const destroyedCardsCount = card.owner.destroyedCards.length()
       card.owner.opponentPlayer?.decreaseLife(destroyedCardsCount)
+      await sleep(100)
     },
   },
 }

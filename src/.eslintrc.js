@@ -12,5 +12,18 @@ module.exports = {
   ],
   plugins: ['jest'],
   // add your custom rules here
-  rules: {},
+  rules: {
+    'require-jsdoc': [
+      'error',
+      {
+        require: {
+          FunctionDeclaration: true,
+          MethodDefinition: true,
+          ClassDeclaration: true,
+          ArrowFunctionExpression: true,
+          FunctionExpression: true,
+        },
+      },
+    ],
+  },
 }

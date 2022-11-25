@@ -10,6 +10,9 @@ import { CardListEmptyException } from '~/core/domain/card_list'
 const DEFAULT_HAND_COUNT = 5
 const DRAW_COUNT_PER_TURN = 1
 
+/**
+ * ゲームの進行を管理するクラス
+ */
 class GameManager {
   turnPlayer: Player
   playerComputer: PlayerComputer
@@ -22,6 +25,11 @@ class GameManager {
   showSnackBar = false
   snackBarText = ''
 
+  /**
+   * コンストラクタ
+   * @param {PlayerComputer} playerComputer コンピュータープレイヤー
+   * @param {PlayerUser} playerUser ユーザープレイヤー
+   */
   constructor(playerComputer: PlayerComputer, playerUser: PlayerUser) {
     this.playerComputer = playerComputer
     this.playerUser = playerUser
@@ -33,39 +41,64 @@ class GameManager {
     this.turnPlayer = this.playerUser
   }
 
-  async start() {
+  /**
+   * ゲームを開始する。
+   *
+   * 1. デッキのシャッフル
+   * 2. 初期手札のドロー
+   * 3. メインループ開始
+   */
+  async start(): Promise<void> {
     this.isStarted = true
+    this.playerComputer.deck.shuffle()
+    this.playerUser.deck.shuffle()
 
-    this.playerComputer.draw(DEFAULT_HAND_COUNT)
-    this.playerUser.draw(DEFAULT_HAND_COUNT)
-    await sleep(2000)
-
-    this.showInfo('start match')
-    await sleep(1000)
-
+    await Promise.all([
+      this.playerComputer.draw(DEFAULT_HAND_COUNT),
+      this.playerUser.draw(DEFAULT_HAND_COUNT),
+    ])
+    await this.showInfo('start match')
     this.game_loop()
   }
 
+  /**
+   * ゲームのメインループ処理
+   *
+   * 1. 自分のフィールドのカードの「自分のターン開始時」処理を実行
+   * 2. 相手のフィールドのカードの「相手のターン開始時」処理を実行
+   * 3. 自分のフィールドのカードの「行動済み」フラグをリセット
+   * 4. 自分プレイヤーが補助金を受け取る処理を実行
+   * 5. 自分のフィールドのカードのコストを支払う処理を実行
+   * 6. カードをドローする処理を実行
+   * 7. 行動を受付開始
+   */
   async game_loop() {
     try {
       assert(this.turnPlayer.opponentPlayer)
 
+      // 自分のフィールドのカードの「自分のターン開始時」処理を実行
       this.turnPlayer.field.cards.forEach((card) => {
         card.onStartedOwnerTurn(card)
       })
+      // 相手のフィールドのカードの「相手のターン開始時」処理を実行
       this.turnPlayer.opponentPlayer.field.cards.forEach((card) => {
         card.onStartedOpponentTurn(card)
       })
+      // 自分のフィールドのカードの「行動済み」フラグをリセット
       this.turnPlayer.field.cards.forEach((card) => {
         card.isActed = false
       })
+      // 自分プレイヤーが補助金を受け取る処理を実行
       this.turnPlayer.increaseAssets(this.getSubsidy())
       await sleep(1000)
 
+      // 自分のフィールドのカードのコストを支払う処理を実行
       this.turnPlayer.payFieldCardCost()
       await sleep(1000)
 
+      // カードをドローする処理を実行
       this.turnPlayer.draw(DRAW_COUNT_PER_TURN)
+      // 行動を受付開始
       this.turnPlayer.canAct = true
       this.turnPlayer.waitAction(this.game_controller)
     } catch (e) {
@@ -75,12 +108,22 @@ class GameManager {
     }
   }
 
-  getSubsidy() {
+  /**
+   * 現在のターンに受け取れる補助金の額を返す
+   * @returns {number} 受け取る補助金
+   */
+  getSubsidy(): number {
     const baseSubsidy = 1000
     return this.turnCount * baseSubsidy
   }
 
-  contract = (card: Card) => {
+  /**
+   * カードダイアログの契約アクションの詳細情報を返す
+   * @param {Card} card 契約するカード
+   * @returns {{label: string, disabled: boolean, actionCallback: function(Card): Promise<void>}}
+   */
+  contract = (card: Card): { label: string; disabled: boolean; actionCallback: (arg0: Card) => Promise<void> } => {
+    assert(card.owner?.contract)
     return {
       label: 'Contract',
       disabled: !card.owner?.canAct,
@@ -88,7 +131,13 @@ class GameManager {
     }
   }
 
-  attack = (card: Card) => {
+  /**
+   * カードダイアログの攻撃アクションの詳細情報を返す
+   * @param {Card} card 攻撃するカード
+   * @returns {{label: string, disabled: boolean, actionCallback: function(Card): Promise<void>}}
+   */
+  attack = (card: Card): { label: string; disabled: boolean; actionCallback: (arg0: Card) => Promise<void> } => {
+    assert(card.owner?.attack)
     return {
       label: 'Attack',
       disabled: card.isActed || !card.owner?.canAct,
@@ -96,23 +145,37 @@ class GameManager {
     }
   }
 
-  async changeTurn() {
+  /**
+   * 次のターンに移る
+   *
+   * 1. 行動の受付を終了
+   * 2. ターン数のインクリメント
+   * 3. ターンプレイヤーの変更
+   * 4. メイン処理に移る
+   * @returns {Promise<void>} Promiseオブジェクト
+   */
+  async changeTurn(): Promise<void> {
     this.turnPlayer.canAct = false
-
-    this.showInfo('Change Turn')
-    await sleep(2000)
-
+    await this.showInfo('Change Turn')
+    // ターン数のインクリメント
     this.turnCount++
 
+    // ターンプレイヤーの変更
     const opponentPlayer = this.turnPlayer.opponentPlayer
     assert(opponentPlayer)
     this.turnPlayer = opponentPlayer
     this.game_loop()
   }
 
-  showInfo(message: string) {
+  /**
+   * メッセージをスナックバーとして表示する。
+   * @param message メッセージ
+   * @returns {Promise<void>} Promiseオブジェクト
+   */
+  async showInfo(message: string): Promise<void> {
     this.showSnackBar = true
     this.snackBarText = message
+    await sleep(1000)
   }
 }
 

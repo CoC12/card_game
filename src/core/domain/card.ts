@@ -3,11 +3,13 @@ import Player from './player'
 // eslint-disable-next-line no-use-before-define
 type AdditionalDescriptionCallback = { (card: Card): string }
 // eslint-disable-next-line no-use-before-define
-type CardCallback = { (card: Card): void }
+type CardCallback = { (card: Card): Promise<void> }
 // eslint-disable-next-line no-use-before-define
 type LifeCallback = { (card: Card, life: number): number }
-// eslint-disable-next-line no-use-before-define
-type CardDestroyedCallback = { (card: Card, destroyedCard: Card): void }
+type CardDestroyedCallback = {
+  // eslint-disable-next-line no-use-before-define
+  (card: Card, destroyedCard: Card): Promise<void>
+}
 
 export type CardConstructor = {
   code: string
@@ -26,6 +28,9 @@ export type CardConstructor = {
   onOwnerCardDestroyed?: CardDestroyedCallback
 }
 
+/**
+ * カードに関する情報を保持するクラス
+ */
 class Card {
   id: string
   code: string
@@ -47,6 +52,10 @@ class Card {
   isActed = true
   owner: Player | null = null
 
+  /**
+   * コンストラクタ
+   * @param {CardConstructor} param0 カード情報
+   */
   constructor({
     code,
     name,
@@ -55,15 +64,15 @@ class Card {
     imgSrc,
     cost,
     attack,
-    onContracted = () => {},
-    onAttacked = () => {},
-    onDestroyed = () => {},
-    onStartedOwnerTurn = () => {},
-    onStartedOpponentTurn = () => {},
+    onContracted = async () => {},
+    onAttacked = async () => {},
+    onDestroyed = async () => {},
+    onStartedOwnerTurn = async () => {},
+    onStartedOpponentTurn = async () => {},
     onOwnerLifeDecreased = (_, life) => life,
-    onOwnerCardDestroyed = () => {},
+    onOwnerCardDestroyed = async () => {},
   }: CardConstructor) {
-    this.id = this.getId()
+    this.id = this.generateId()
     this.code = code
     this.name = name
     this.description = description
@@ -80,11 +89,19 @@ class Card {
     this.onOwnerCardDestroyed = onOwnerCardDestroyed
   }
 
-  getId() {
+  /**
+   * カードのidを生成する
+   * @returns {string} カードのid
+   */
+  generateId(): string {
     return Math.random().toString(32).substring(2)
   }
 
-  setOwner(owner: Player) {
+  /**
+   * 所有プレイヤーを設定する。
+   * @param {Player} owner 所有プレイヤー
+   */
+  setOwner(owner: Player): void {
     this.owner = owner
   }
 }
