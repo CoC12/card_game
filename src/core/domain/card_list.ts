@@ -97,7 +97,8 @@ class CardList {
    */
   async addToLast(card: Card): Promise<void> {
     this.cards.push(card)
-    await this.validate()
+    await sleep(300)
+    this.validate()
   }
 
   /**
@@ -113,14 +114,12 @@ class CardList {
   /**
    * カードリストの最大枚数を検証する。
    * カードリストの最大枚数を超えた場合は最後のカードを削除する。
-   * @returns {Promise<void>} Promiseオブジェクト
    */
-  async validate(): Promise<void> {
+  validate(): void {
     if (this.limitCount < 0) {
       return
     }
     if (this.limitCount < this.cards.length) {
-      await sleep(1000)
       this.popLastCard()
     }
   }

@@ -7,6 +7,9 @@ import Card from './card'
 import sleep from '~/core/sleep'
 import GameController from '~/core/game_controller'
 
+/**
+ * プレイヤーによる行動を管理するクラス
+ */
 class Player {
   assets = 1000
   life = 20
@@ -20,6 +23,10 @@ class Player {
 
   canAct = false
 
+  /**
+   * コンストラクタ
+   * @param {Deck} deck プレーヤーのデッキ
+   */
   constructor(deck: Deck) {
     this.deck = deck
     this.hand = new Hand()
@@ -30,71 +37,125 @@ class Player {
     })
   }
 
-  increaseAssets(assets: number) {
-    this.assets += assets
-  }
-
-  decreaseAssets(assets: number) {
-    this.assets -= assets
-  }
-
-  increaseLife(life: number) {
-    this.life += life
-  }
-
-  async decreaseLife(life: number) {
-    await sleep(300)
-    this.field.cards.forEach((card) => {
-      life = card.onOwnerLifeDecreased(card, life)
-    })
-    this.life -= life
-  }
-
-  setOpponentPlayer(opponentPlayer: Player) {
+  /**
+   * 相手プレイヤーを設定する
+   * @param {Player} opponentPlayer 相手プレイヤー
+   */
+  setOpponentPlayer(opponentPlayer: Player): void {
     this.opponentPlayer = opponentPlayer
   }
 
-  async draw(count: number) {
+  /**
+   * プレイヤーの行動を待機する
+   * @param {GameController} _ GameControllerオブジェクト
+   * @returns {Promise<void>} Promiseオブジェクト
+   */
+  async waitAction(_: GameController): Promise<void> {}
+
+  /**
+   * プレイヤーの資産を増やす
+   * @param {number} assets 増やす資産
+   * @returns {Promise<void>} Promiseオブジェクト
+   */
+  async increaseAssets(assets: number): Promise<void> {
+    this.assets += assets
+    await sleep(300)
+  }
+
+  /**
+   * プレイヤーの資産を減らす
+   * @param {number} assets 減らす資産
+   * @returns {Promise<void>} Promiseオブジェクト
+   */
+  async decreaseAssets(assets: number): Promise<void> {
+    this.assets -= assets
+    await sleep(300)
+  }
+
+  /**
+   * プレイヤーの体力を増やす
+   * @param {number} life 増やす体力
+   * @returns {Promise<void>} Promiseオブジェクト
+   */
+  async increaseLife(life: number): Promise<void> {
+    this.life += life
+    await sleep(300)
+  }
+
+  /**
+   * プレイヤーの体力を減らす
+   * @param {number} life 減らす体力
+   * @returns {Promise<void>} Promiseオブジェクト
+   */
+  async decreaseLife(life: number): Promise<void> {
+    for (const card of this.field.cards) {
+      life = await card.onOwnerLifeDecreased(card, life)
+    }
+    this.life -= life
+    await sleep(300)
+  }
+
+  /**
+   * デッキからカードを引く
+   * @param {number} count 引くカードの枚数
+   */
+  async draw(count: number): Promise<void> {
     for (let i = 0; i < count; i++) {
       const card = this.deck.popTopCard()
       await this.hand.addToLast(card)
-      await sleep(300)
     }
   }
 
-  async payFieldCardCost() {
+  /**
+   * 場のカードのコストを支払う
+   * @returns {Promise<void>} Promiseオブジェクト
+   */
+  async payFieldCardCost(): Promise<void> {
     for (const card of this.field.cards) {
-      this.decreaseAssets(card.cost)
-      await sleep(300)
+      await this.decreaseAssets(card.cost)
     }
   }
 
-  waitAction(_: GameController) {}
-
-  async contract(card: Card) {
-    card.owner?.decreaseAssets(card.cost)
+  /**
+   * 指定した手札のカードを場に出す
+   * @param {Card} card 契約するカード
+   * @returns {Promise<void>} Promiseオブジェクト
+   */
+  async contract(card: Card): Promise<void> {
+    // コストの支払い
+    await card.owner?.decreaseAssets(card.cost)
+    // 手札のカードを場に移動
     card.owner?.hand.popCardById(card.id)
     await card.owner?.field.addToLast(card)
-    await sleep(300)
-    card.onContracted(card)
+    // 契約時処理を実行
+    await card.onContracted(card)
   }
 
-  async attack(card: Card) {
-    card.owner?.opponentPlayer?.decreaseLife(card.attack)
+  /**
+   * 指定した場のカードが攻撃する
+   * @param {Card} card 攻撃するカード
+   * @returns {Promise<void>} Promiseオブジェクト
+   */
+  async attack(card: Card): Promise<void> {
+    await card.owner?.opponentPlayer?.decreaseLife(card.attack)
     card.isActed = true
-    await sleep(300)
-    card.onAttacked(card)
+    await card.onAttacked(card)
   }
 
-  async destroy(destroyedCard: Card) {
+  /**
+   * 指定した場のカードを破壊する
+   * @param destroyedCard 破壊するカード
+   * @returns {Promise<void>} Promiseオブジェクト
+   */
+  async destroy(destroyedCard: Card): Promise<void> {
+    // 場のカードを破壊カードリストに移動
     destroyedCard.owner?.field.popCardById(destroyedCard.id)
     await destroyedCard.owner?.destroyedCards.addToLast(destroyedCard)
-    await sleep(300)
+    // 破壊時処理を実行
     await destroyedCard.onDestroyed(destroyedCard)
-    await sleep(300)
+    // 場の他カード破壊時処理を実行
     assert(destroyedCard.owner)
-    for (let i = 0; i < destroyedCard.owner.field.length(); i++) {
-      const card = destroyedCard.owner.field.cards[i]
+    for (const card of destroyedCard.owner.field.cards) {
       await card.onOwnerCardDestroyed(card, destroyedCard)
     }
   }

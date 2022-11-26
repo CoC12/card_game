@@ -90,7 +90,7 @@ const sampleDeck = {
   'ini-009': 3,
   'ini-010': 3,
   'ini-011': 3,
-  'ini-012': 7,
+  'ini-012': 3,
 }
 
 const cardsComputer = []

@@ -5,7 +5,7 @@ type AdditionalDescriptionCallback = { (card: Card): string }
 // eslint-disable-next-line no-use-before-define
 type CardCallback = { (card: Card): Promise<void> }
 // eslint-disable-next-line no-use-before-define
-type LifeCallback = { (card: Card, life: number): number }
+type LifeCallback = { (card: Card, life: number): Promise<number> }
 type CardDestroyedCallback = {
   // eslint-disable-next-line no-use-before-define
   (card: Card, destroyedCard: Card): Promise<void>
@@ -69,7 +69,7 @@ class Card {
     onDestroyed = async () => {},
     onStartedOwnerTurn = async () => {},
     onStartedOpponentTurn = async () => {},
-    onOwnerLifeDecreased = (_, life) => life,
+    onOwnerLifeDecreased = (_, life) => Promise.resolve(life),
     onOwnerCardDestroyed = async () => {},
   }: CardConstructor) {
     this.id = this.generateId()

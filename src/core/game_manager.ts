@@ -10,6 +10,12 @@ import { CardListEmptyException } from '~/core/domain/card_list'
 const DEFAULT_HAND_COUNT = 5
 const DRAW_COUNT_PER_TURN = 1
 
+type CardActionState = {
+  label: string
+  disabled: boolean
+  actionCallback: (arg0: Card) => Promise<void>
+}
+
 /**
  * ゲームの進行を管理するクラス
  */
@@ -77,27 +83,24 @@ class GameManager {
       assert(this.turnPlayer.opponentPlayer)
 
       // 自分のフィールドのカードの「自分のターン開始時」処理を実行
-      this.turnPlayer.field.cards.forEach((card) => {
-        card.onStartedOwnerTurn(card)
-      })
+      for (const card of this.turnPlayer.field.cards) {
+        await card.onStartedOwnerTurn(card)
+      }
       // 相手のフィールドのカードの「相手のターン開始時」処理を実行
-      this.turnPlayer.opponentPlayer.field.cards.forEach((card) => {
-        card.onStartedOpponentTurn(card)
-      })
+      for (const card of this.turnPlayer.opponentPlayer.field.cards) {
+        await card.onStartedOpponentTurn(card)
+      }
       // 自分のフィールドのカードの「行動済み」フラグをリセット
       this.turnPlayer.field.cards.forEach((card) => {
         card.isActed = false
       })
       // 自分プレイヤーが補助金を受け取る処理を実行
-      this.turnPlayer.increaseAssets(this.getSubsidy())
-      await sleep(1000)
-
+      await this.turnPlayer.increaseAssets(this.getSubsidy())
       // 自分のフィールドのカードのコストを支払う処理を実行
-      this.turnPlayer.payFieldCardCost()
-      await sleep(1000)
+      await this.turnPlayer.payFieldCardCost()
 
       // カードをドローする処理を実行
-      this.turnPlayer.draw(DRAW_COUNT_PER_TURN)
+      await this.turnPlayer.draw(DRAW_COUNT_PER_TURN)
       // 行動を受付開始
       this.turnPlayer.canAct = true
       this.turnPlayer.waitAction(this.game_controller)
@@ -122,7 +125,7 @@ class GameManager {
    * @param {Card} card 契約するカード
    * @returns {{label: string, disabled: boolean, actionCallback: function(Card): Promise<void>}}
    */
-  contract = (card: Card): { label: string; disabled: boolean; actionCallback: (arg0: Card) => Promise<void> } => {
+  contract = (card: Card): CardActionState => {
     assert(card.owner?.contract)
     return {
       label: 'Contract',
@@ -136,7 +139,7 @@ class GameManager {
    * @param {Card} card 攻撃するカード
    * @returns {{label: string, disabled: boolean, actionCallback: function(Card): Promise<void>}}
    */
-  attack = (card: Card): { label: string; disabled: boolean; actionCallback: (arg0: Card) => Promise<void> } => {
+  attack = (card: Card): CardActionState => {
     assert(card.owner?.attack)
     return {
       label: 'Attack',
@@ -175,7 +178,7 @@ class GameManager {
   async showInfo(message: string): Promise<void> {
     this.showSnackBar = true
     this.snackBarText = message
-    await sleep(1000)
+    await sleep(1300)
   }
 }
 
