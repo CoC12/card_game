@@ -20,6 +20,15 @@ class GameController {
   finish_action(): void {
     this.gameManager.changeTurn()
   }
+
+  /**
+   * 次ターンに得られる補助金の額を返す
+   * @returns {number} 次ターンに得られる補助金の額
+   */
+  getNextTurnSubsidy(): number {
+    const nextTurnCount = this.gameManager.turnCount + 2
+    return this.gameManager.getSubsidy(nextTurnCount)
+  }
 }
 
 export default GameController

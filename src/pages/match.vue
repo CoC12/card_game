@@ -23,13 +23,13 @@
         </div>
         <CardList
           :cards="gameManager.playerUser.field.cards"
-          :card-state-callback="gameManager.attack"
+          :card-state-callback="gameManager.playerUser.actionAttack"
         />
       </div>
       <div class="hand-info">
         <CardList
           :cards="gameManager.playerUser.hand.cards"
-          :card-state-callback="gameManager.contract"
+          :card-state-callback="gameManager.playerUser.actionContract"
         />
       </div>
       <div class="status-info">

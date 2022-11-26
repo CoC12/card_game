@@ -34,6 +34,17 @@ class CardList {
   }
 
   /**
+   * カードリストに空きがあるかを返す
+   * @returns {boolean} カードリストに空きがあるか
+   */
+  hasSpace(): boolean {
+    if (this.limitCount < 0) {
+      return true
+    }
+    return this.cards.length < this.limitCount
+  }
+
+  /**
    * カードidを指定してカードを取り除く。
    * @param {string} id カードid
    * @returns {Card} 取り除いたカード

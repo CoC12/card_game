@@ -25,5 +25,6 @@ module.exports = {
         },
       },
     ],
+    'no-labels': ['error', { allowLoop: true }],
   },
 }

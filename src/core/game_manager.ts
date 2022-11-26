@@ -3,18 +3,10 @@ import sleep from './sleep'
 import Player from './domain/player'
 import PlayerUser from '~/core/domain/player_user'
 import PlayerComputer from '~/core/domain/player_computer'
-import Card from '~/core/domain/card'
 import GameController from '~/core/game_controller'
-import { CardListEmptyException } from '~/core/domain/card_list'
 
 const DEFAULT_HAND_COUNT = 5
 const DRAW_COUNT_PER_TURN = 1
-
-type CardActionState = {
-  label: string
-  disabled: boolean
-  actionCallback: (arg0: Card) => Promise<void>
-}
 
 /**
  * ゲームの進行を管理するクラス
@@ -25,7 +17,6 @@ class GameManager {
   playerUser: PlayerUser
   game_controller: GameController
 
-  isStarted = false
   turnCount = 1
 
   showSnackBar = false
@@ -55,7 +46,6 @@ class GameManager {
    * 3. メインループ開始
    */
   async start(): Promise<void> {
-    this.isStarted = true
     this.playerComputer.deck.shuffle()
     this.playerUser.deck.shuffle()
 
@@ -79,73 +69,30 @@ class GameManager {
    * 7. 行動を受付開始
    */
   async game_loop() {
-    try {
-      assert(this.turnPlayer.opponentPlayer)
+    assert(this.turnPlayer.opponentPlayer)
 
-      // 自分のフィールドのカードの「自分のターン開始時」処理を実行
-      for (const card of this.turnPlayer.field.cards) {
-        await card.onStartedOwnerTurn(card)
-      }
-      // 相手のフィールドのカードの「相手のターン開始時」処理を実行
-      for (const card of this.turnPlayer.opponentPlayer.field.cards) {
-        await card.onStartedOpponentTurn(card)
-      }
-      // 自分のフィールドのカードの「行動済み」フラグをリセット
-      this.turnPlayer.field.cards.forEach((card) => {
-        card.isActed = false
-      })
-      // 自分プレイヤーが補助金を受け取る処理を実行
-      await this.turnPlayer.increaseAssets(this.getSubsidy())
-      // 自分のフィールドのカードのコストを支払う処理を実行
-      await this.turnPlayer.payFieldCardCost()
-
-      // カードをドローする処理を実行
-      await this.turnPlayer.draw(DRAW_COUNT_PER_TURN)
-      // 行動を受付開始
-      this.turnPlayer.canAct = true
-      this.turnPlayer.waitAction(this.game_controller)
-    } catch (e) {
-      if (e instanceof CardListEmptyException) {
-        this.isStarted = false
-      }
+    // 自分のフィールドのカードの「自分のターン開始時」処理を実行
+    for (const card of this.turnPlayer.field.cards) {
+      await card.onStartedOwnerTurn(card)
     }
-  }
-
-  /**
-   * 現在のターンに受け取れる補助金の額を返す
-   * @returns {number} 受け取る補助金
-   */
-  getSubsidy(): number {
-    const baseSubsidy = 1000
-    return this.turnCount * baseSubsidy
-  }
-
-  /**
-   * カードダイアログの契約アクションの詳細情報を返す
-   * @param {Card} card 契約するカード
-   * @returns {{label: string, disabled: boolean, actionCallback: function(Card): Promise<void>}}
-   */
-  contract = (card: Card): CardActionState => {
-    assert(card.owner?.contract)
-    return {
-      label: 'Contract',
-      disabled: !card.owner?.canAct,
-      actionCallback: card.owner?.contract,
+    // 相手のフィールドのカードの「相手のターン開始時」処理を実行
+    for (const card of this.turnPlayer.opponentPlayer.field.cards) {
+      await card.onStartedOpponentTurn(card)
     }
-  }
+    // 自分のフィールドのカードの「行動済み」フラグをリセット
+    this.turnPlayer.field.cards.forEach((card) => {
+      card.isActed = false
+    })
+    // 自分プレイヤーが補助金を受け取る処理を実行
+    await this.turnPlayer.increaseAssets(this.getSubsidy())
+    // 自分のフィールドのカードのコストを支払う処理を実行
+    await this.turnPlayer.payFieldCardCost()
 
-  /**
-   * カードダイアログの攻撃アクションの詳細情報を返す
-   * @param {Card} card 攻撃するカード
-   * @returns {{label: string, disabled: boolean, actionCallback: function(Card): Promise<void>}}
-   */
-  attack = (card: Card): CardActionState => {
-    assert(card.owner?.attack)
-    return {
-      label: 'Attack',
-      disabled: card.isActed || !card.owner?.canAct,
-      actionCallback: card.owner?.attack,
-    }
+    // カードをドローする処理を実行
+    await this.turnPlayer.draw(DRAW_COUNT_PER_TURN)
+    // 行動を受付開始
+    this.turnPlayer.canAct = true
+    this.turnPlayer.waitAction(this.game_controller)
   }
 
   /**
@@ -168,6 +115,25 @@ class GameManager {
     assert(opponentPlayer)
     this.turnPlayer = opponentPlayer
     this.game_loop()
+  }
+
+  /**
+   * ゲームを終了させる
+   */
+  async stop(winner: Player) {
+    this.playerComputer.canAct = false
+    this.playerUser.canAct = false
+    await this.showInfo(`You ${winner === this.playerUser ? 'win' : 'lose'}`)
+  }
+
+  /**
+   * 指定のターンに受け取れる補助金の額を返す
+   * @param {number} [turnCount=this.turnCount] ターン数
+   * @returns {number} 受け取る補助金
+   */
+  getSubsidy(turnCount: number = this.turnCount): number {
+    const baseSubsidy = 1000
+    return turnCount * baseSubsidy
   }
 
   /**

@@ -117,6 +117,37 @@ class Player {
   }
 
   /**
+   * 指定したカードが契約可能かを返す
+   * @param {Card} card 対象のカード
+   * @returns {boolean} 指定のカードを契約できるか
+   */
+  canContract(card: Card): boolean {
+    // ターンプレイヤーではない場合は不可
+    if (!card.owner?.canAct) {
+      return false
+    }
+    // カード所有者のフィールドに空きがなければ不可
+    if (!card.owner?.field.hasSpace()) {
+      return false
+    }
+    // カードのコストがプレイヤーの資産を超えている場合は不可
+    return card.cost <= this.assets
+  }
+
+  /**
+   * 指定したカードが攻撃可能かを返す
+   * @param {Card} card 対象のカード
+   * @returns {boolean} 指定のカードを攻撃できるか
+   */
+  canAttack(card: Card): boolean {
+    // ターンプレイヤーではない場合は不可
+    if (!card.owner?.canAct) {
+      return false
+    }
+    return !card.isActed
+  }
+
+  /**
    * 指定した手札のカードを場に出す
    * @param {Card} card 契約するカード
    * @returns {Promise<void>} Promiseオブジェクト
