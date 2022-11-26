@@ -2,7 +2,6 @@ import assert from 'assert'
 import sleep from '../sleep'
 import Player from './player'
 import Card from '~/core/domain/card'
-import GameController from '~/core/game_controller'
 
 type CardActionState = {
   label: string
@@ -19,15 +18,14 @@ class PlayerUser extends Player {
 
   /**
    * プレイヤーの行動を待機する
-   * @param {GameController} gameController GameControllerオブジェクト
    * @returns {Promise<void>} Promiseオブジェクト
    */
-  async waitAction(gameController: GameController): Promise<void> {
+  async waitAction(): Promise<void> {
     await sleep(0)
     this.showFinishActionButton = true
     this.finishActionButtonCallback = () => {
       this.showFinishActionButton = false
-      gameController.finish_action()
+      this.gameController?.finish_action()
     }
   }
 

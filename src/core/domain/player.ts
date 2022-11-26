@@ -20,6 +20,8 @@ class Player {
   destroyedCards: DestroyedCards
   // eslint-disable-next-line no-use-before-define
   opponentPlayer: Player | null = null
+  // eslint-disable-next-line no-use-before-define
+  gameController: GameController | null = null
 
   canAct = false
 
@@ -46,11 +48,18 @@ class Player {
   }
 
   /**
+   * GameControllerを設定する
+   * @param {GameController} gameController GameControllerオブジェクト
+   */
+  setGameController(gameController: GameController): void {
+    this.gameController = gameController
+  }
+
+  /**
    * プレイヤーの行動を待機する
-   * @param {GameController} _ GameControllerオブジェクト
    * @returns {Promise<void>} Promiseオブジェクト
    */
-  async waitAction(_: GameController): Promise<void> {}
+  async waitAction(): Promise<void> {}
 
   /**
    * プレイヤーの資産を増やす

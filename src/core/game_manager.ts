@@ -28,13 +28,16 @@ class GameManager {
    * @param {PlayerUser} playerUser ユーザープレイヤー
    */
   constructor(playerComputer: PlayerComputer, playerUser: PlayerUser) {
+    this.game_controller = new GameController(this)
     this.playerComputer = playerComputer
     this.playerUser = playerUser
 
-    this.playerComputer.opponentPlayer = this.playerUser
-    this.playerUser.opponentPlayer = this.playerComputer
+    this.playerComputer.setGameController(this.game_controller)
+    this.playerUser.setGameController(this.game_controller)
 
-    this.game_controller = new GameController(this)
+    this.playerComputer.setOpponentPlayer(this.playerUser)
+    this.playerUser.setOpponentPlayer(this.playerComputer)
+
     this.turnPlayer = this.playerUser
   }
 
@@ -92,7 +95,7 @@ class GameManager {
     await this.turnPlayer.draw(DRAW_COUNT_PER_TURN)
     // 行動を受付開始
     this.turnPlayer.canAct = true
-    this.turnPlayer.waitAction(this.game_controller)
+    this.turnPlayer.waitAction()
   }
 
   /**
@@ -115,15 +118,6 @@ class GameManager {
     assert(opponentPlayer)
     this.turnPlayer = opponentPlayer
     this.game_loop()
-  }
-
-  /**
-   * ゲームを終了させる
-   */
-  async stop(winner: Player) {
-    this.playerComputer.canAct = false
-    this.playerUser.canAct = false
-    await this.showInfo(`You ${winner === this.playerUser ? 'win' : 'lose'}`)
   }
 
   /**
