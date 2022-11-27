@@ -5,26 +5,34 @@
         <StatusInfo :player="gameManager.playerComputer" />
       </div>
       <div class="field">
-        {{ gameManager.turnCount }}ターン目
-        <CardList
-          :cards="gameManager.playerComputer.field.cards"
-          :show-action-button="false"
-        />
-        <div style="height: 20vh"></div>
-        <div class="d-flex justify-center">
-          <v-btn
-            elevation="2"
-            rounded
-            :disabled="!gameManager.playerUser.showFinishActionButton"
-            @click="gameManager.playerUser.finishActionButtonCallback"
-          >
-            <div>Change Turn</div>
-          </v-btn>
+        <div class="field-card">
+          <CardList
+            :cards="gameManager.playerComputer.field.cards"
+            :show-action-button="false"
+          />
         </div>
-        <CardList
-          :cards="gameManager.playerUser.field.cards"
-          :card-state-callback="gameManager.playerUser.actionAttack"
-        />
+        <div class="match-info d-flex align-center">
+          <v-col cols="3"> {{ gameManager.turnCount }}ターン目 </v-col>
+          <v-col cols="6" class="d-flex justify-center">
+            <v-btn
+              elevation="2"
+              rounded
+              :disabled="!gameManager.playerUser.showFinishActionButton"
+              @click="gameManager.playerUser.finishActionButtonCallback"
+            >
+              <div>Change Turn</div>
+            </v-btn>
+          </v-col>
+          <v-col cols="3">
+            <!-- TODO Game Log -->
+          </v-col>
+        </div>
+        <div class="field-card">
+          <CardList
+            :cards="gameManager.playerUser.field.cards"
+            :card-state-callback="gameManager.playerUser.actionAttack"
+          />
+        </div>
       </div>
       <div class="hand-info">
         <CardList
@@ -135,17 +143,25 @@ export default Vue.extend({
 </script>
 
 <style>
+:root {
+  --card-area-height: 15vh;
+}
+
 .status-info {
-  height: 15vh;
+  height: var(--card-area-height);
   background-color: #3e3e3e;
 }
 
-.field {
-  height: calc(55vh - 2 * 12px);
+.field-card {
+  height: var(--card-area-height);
+}
+
+.match-info {
+  height: calc(100vh - 5 * var(--card-area-height) - 2 * 12px);
 }
 
 .hand-info {
-  height: 15vh;
+  height: var(--card-area-height);
   background-color: #fbb;
 }
 </style>
